@@ -39,3 +39,69 @@ sudo yum install -y java-21-amazon-corretto-devel
 openjdk version "21.0.7" 2025-04-15 LTS
 OpenJDK Runtime Environment Corretto-21.0.7.6.1 (build 21.0.7+6-LTS)
 OpenJDK 64-Bit Server VM Corretto-21.0.7.6.1 (build 21.0.7+6-LTS, mixed mode,
+
+
+AWS Configure:
+
+Go to the AWS Console
+
+Navigate to EC2 → Instances
+
+Select your instance
+
+Click Actions → Security → Modify IAM Role
+
+If no role exists yet:
+
+Go to IAM → Roles
+
+Create a new role with:
+
+Trusted entity: AWS service → EC2
+
+Permissions: Add AmazonS3ReadOnlyAccess or a custom policy with S3 access
+
+Finish and attach the role to the instance
+
+Once attached, AWS CLI on EC2 will automatically work — no need to run aws configure.
+
+[root@ip-172-31-41-225 ~]# ls
+[root@ip-172-31-41-225 ~]# aws s3 ls s3://thorunithas3demo/coupon-0.0.1-SNAPSHOT.jar
+2025-05-25 12:05:07   53834707 coupon-0.0.1-SNAPSHOT.jar
+[root@ip-172-31-41-225 ~]# ls
+[root@ip-172-31-41-225 ~]# aws s3 cp s3://thorunithas3demo/coupon-0.0.1-SNAPSHOT.jar .
+download: s3://thorunithas3demo/coupon-0.0.1-SNAPSHOT.jar to ./coupon-0.0.1-SNAPSHOT.jar
+[root@ip-172-31-41-225 ~]# ls
+coupon-0.0.1-SNAPSHOT.jar
+
+
+java -jar coupon-0.0.1-SNAPSHOT.jar
+ -- start it
+
+http://ec2-13-51-207-20.eu-north-1.compute.amazonaws.com:8082/couponapi/coupons - please refer img.png
+
+
+How to Automate the App Launch:
+
+[root@ip-172-31-41-225 ~]# ls
+coupon-0.0.1-SNAPSHOT.jar
+[root@ip-172-31-41-225 ~]# cp coupon-0.0.1-SNAPSHOT.jar /home/ec2-user/
+sudo vi /etc/rc.d/rc.local
+*content to be included:
+#!/bin/bash
+java -jar /home/ec2-user/coupon-0.0.1-SNAPSHOT.jar
+create a symbolic link
+sudo ln -s /etc/rc.d/rc.local /etc/rc.local
+ Make it executable
+ sudo chmod +x /etc/rc.d/rc.local
+stop and start the instance to reflect the change
+directly hit the url in the browser
+security group and open the port
+ yum install stress -y
+
+ create a AMI
+use the existing instance - and create a image and configure security group and start it.
+No need to install java, mariaDB etc, everything is available in the image
+just start the instance.
+
+If it included in the rc.local, then no need to start. It automatically launch the start
