@@ -1,4 +1,4 @@
-package com.devops.coupon;
+package com.coupon.springcloud;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
