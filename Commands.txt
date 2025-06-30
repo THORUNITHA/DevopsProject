@@ -105,3 +105,157 @@ No need to install java, mariaDB etc, everything is available in the image
 just start the instance.
 
 If it included in the rc.local, then no need to start. It automatically launch the start
+
+stress automatically load the CPU.
+stress --cpu 1 - definetely the load will go above 50
+
+Create Mysql data on RDS
+RDS - AWS Relational Database Service
+Create a RDS instance
+Create a security group and open the port 3306
+Public access to the RDS instance
+after successfully created - open mysql workbench and in the hostname paste the endpoint
+mysql -h <endpoint> -u <username> -p<password>
+Create a table and insert some data
+create database mydb;
+use mydb;
+in the java , application.properties - use the RDS endpoint instead of localhost
+example
+spring.datasource.url=jdbc:mysql://<endpoint>/mydb?createDatabase
+elasticbeanstalk - AWS Elastic Beanstalk default port is 5000
+server.port=5000 in application.properties
+Generate the jar
+
+AWS - elastic bean stalk -
+1. create application
+It covers everything EC2, Loadbalancer, RDS etc
+
+Docker
+Start EC2 instance
+Install Docker
+yum install docker
+service start docker
+docker info
+docker run --help
+docker run -i -d -t -p 80:80 nginx
+docker ps
+custom ip - security group expose port 80
+docker stop <container id>
+docker ps -a - list all the containers
+
+Docker Clean Up:
+docker info - that will show the status of container that are running and stopped
+docker ps -a - list all the containers
+docker rm <container id1> <container id2> - remove the container
+docker images
+docker rmi <image id1> <image id2> - remove the image
+
+Assigning a name to container
+docker run -i -d -t -p 80:80 --name mynginx nginx
+docker ps
+
+docker commit
+Create your own container and commit
+docker pull ubuntu
+docker run -i -d -t --name myubuntu ubuntu
+docker exec -it myubuntu bash
+inside bash:
+apt-get update
+apt-get install apache2
+
+docker commit myubuntu mywebserver
+docker images
+docker run -i -d -t  --name mywebserver mywebserver
+service apache2 status
+service apache2 start
+
+Launch MySQL Container:
+1. service docker start
+2. docker run -i -d -t -p 3306:3306 --name thoru_mysql -e MYSQL_ROOT_PASSWORD=test1234 -e MYSQL_DATABASE=emp  mysql
+3. docker ps
+4. docker exec -it thoru_mysql bash
+5. mysql -u root -p
+6. show databases;
+7. use emp;
+8. exit
+
+Volume and Bind Mount
+persist the data across restarts
+host machine to container
+container to host machine
+Key points:
+1. Bind mount - It can be any folder or file on the host machine to be shared with the container and vice versa. They are not managed by Docker
+2. Volume- Create the volume first using docker command  (/var/lib/docker/volumes), then bind mount it to the container
+
+Use Volumes:
+Volume are managed by docker
+1. docker volume ls
+2. docker volume create --name myvol
+3. docker volume ls
+4. docker run -i -d -t --name mynginx --mount source=myvol,target=/tmp nginx
+5. ls /var/lib/docker/volumes/myvol/_data
+6. docker exec -it mynginx bash
+7. ls /tmp
+8. cd tmp
+9. touch test.txt
+10. exit
+11. cd /var/lib/docker/volumes/myvol/_data
+12. ls
+13. cat test.txt
+
+the data will be persisted both in tmp and myvol
+
+Use Bind Mount:
+
+Bind mount are not managed by docker. They are managed by the host machine
+1. docker run -i -d -t --name mynginx --mount source=/tmp,target=/tmp nginx
+or
+2. docker run -itd --name mynginx -v /root/tmp:/tmp nginx
+
+Docker Network:
+docker network ls
+docker network inspect bridge
+
+1. Create a network - docker network create demonw  --subnet 172.19.0.0/16
+2. Use the network and assign it to a container
+docker run --name webserver2 --network demonw -ip 172.19.0.2 -h thorunitha.com -p 82:80 -it ubuntu /bin/bash
+docker attach webserver2
+hostname
+
+change a container network
+docker network ls
+docker network disconnect demonw webserver2
+docker network inspect demonw - it has no container assigned to it
+docker inspect webserver2
+docker network connect bridge webserver2
+
+Dockerfile Introduction:
+FROM - base image E.G from ubuntu
+COPY - copy the file from the host machine to the container folder E.g copy index.html to /var/www/html
+RUN - run the command in the container E.g apt-get update
+ENV - environment variable E.g MYSQL_ROOT_PASSWORD=test1234
+EXPOSE - expose the port E.g 80
+CMD - run the command in the container E.g service apache2 start
+WORKDIR - work directory E.g /var/www/html
+
+Create a image using dockerfile
+
+Dockerfile is a text file that contains the instructions to create an image. docker cli builds the image from the Dockerfile and we can use that image to create a container.
+Sample
+FROM CENTOS
+RUN yum install httpd -y
+ADD index.html /var/www/html
+CMD APACHECTL -D FOREGROUND
+EXPOSE 80
+MAINTAINER thorunitha.com
+ENV myenv dev
+
+
+vi index.html - create the file and add the content
+docker build -t mywebserver .
+
+push to docker hub
+docker tag mywebserver thorunitha/mywebserver
+docker login
+
+docker push thorunitha/mywebserver
