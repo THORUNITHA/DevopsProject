@@ -1,0 +1,68 @@
+Setup the mysql container:
+docker run -d -p 6666:3306 --name=docker-mysql -
+env="MYSQL_ROOT_PASSWORD=test1234" --env="MYSQL_DATABASE=mydb" mysql
+docker exec -it docker-mysql bash
+# mysql -uroot -p
+test1234
+mysql> show databases;
+mysql> show tables;
+Another Terminal:
+docker exec -i docker-mysql mysql -uroot -ptest1234 mydb <tables.sql
+Launch the Application Containers:
+docker build -f Dockerfile -t coupon_app .
+docker run -t --name=coupon-app --link docker-mysql:mysql -p 10555:9091
+coupon_app
+docker build -f Dockerfile -t product_app .
+docker run -t --link docker-mysql:mysql -p 10666:9090 product_app
+docker run -t --link docker-mysql:mysql --link coupon-app:coupon_app -p
+10666:9090 product_app
+Testing:
+http://localhost:10555/couponapiapi
+http://localhost:10666/productapi
+The --link command will allow the Containers to communicate with each other
+
+do i restart if you have anyissues
+docker restart <name1> <name2>
+
+Link - Product service to coupon service
+
+http://localhost:10666/productapi/products
+POST Request
+Body:
+I/P:
+{
+"name":"SuperWidget",
+"description":"helo",
+"price":6000,
+"couponCode":"TEST11"
+}
+
+o/p
+{
+    "id": 14,
+    "name": "SuperWidget",
+    "description": "helo",
+    "price": 5980.000,
+    "couponCode": "TEST11"
+}
+
+Coupon service:
+POST Request
+http://localhost:10555/couponapi/coupons
+Body:
+{
+"code":"TEST11",
+"discount":20,
+"expDate":"26/07/2026"
+}
+
+Response:
+{
+    "id": 9,
+    "code": "TEST11",
+    "discount": 20,
+    "expDate": "26/07/2026"
+}
+
+GET request:
+http://host.docker.internal:10555/couponapi/coupons/TEST11
