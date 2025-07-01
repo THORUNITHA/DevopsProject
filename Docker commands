@@ -66,3 +66,10 @@ Response:
 
 GET request:
 http://host.docker.internal:10555/couponapi/coupons/TEST11
+
+Last Step : Tag and push to docker hub(central repo)
+
+docker tag product_app thorunithass/productservice
+docker tag coupon_app thorunithass/couponservice
+docker push thorunithass/productservice
+docker push thorunithass/couponservice
