@@ -259,3 +259,5 @@ docker tag mywebserver thorunitha/mywebserver
 docker login
 
 docker push thorunitha/mywebserver
+
+docker run -d -p 6666:3306 --name=docker-mysql --env="MYSQL_ROOT_PASSWORD=test1234" --env="MYSQL_DATABASE=mydb" mysql

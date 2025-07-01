@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.coupon</groupId>
-	<artifactId>springcloud</artifactId>
+	<artifactId>productservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>springcloud</name>
+	<name>productservice</name>
 	<description>Demo project for Product Service</description>
 	<url/>
 	<licenses>
